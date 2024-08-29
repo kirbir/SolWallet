@@ -1,0 +1,22 @@
+build a crypto wallet using node.js and whatever you need. 
+
+the wallet should be able to send and receive solana and other cryptocurrencies
+
+the wallet should be able to store the private keys and mnemonic phrases
+
+the wallet should be able to connect to the solana blockchain
+
+the wallet should be able to send and receive solana
+the wallet shouldbe be able to generate a new wallet
+the wallet should be able to store the wallet address and private key
+the wallet should be able to store the wallet mnemonic phrase
+the wallet should be able to store the wallet public key
+the wallet should be able to store the wallet private key
+the wallet should be able to store the wallet mnemonic phrase
+
+ui should be simple and easy to use
+
+this should be a chrome extension
+
+
+
