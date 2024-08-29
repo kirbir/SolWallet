@@ -5,11 +5,21 @@
   <link rel="stylesheet" type="text/css" href="styles.css">
 </head>
 <body>
-  <div id="app">
-    <h1>Solana Wallet</h1>
-    <div id="wallet-info"></div>
-    <button id="generate-wallet">Generate New Wallet</button>
-    <button id="send-transaction">Send SOL</button>
+  <div class="wallet-container">
+    <header>
+      <h1>Solana Wallet</h1>
+      <p id="wallet-info">No wallet loaded</p>
+    </header>
+    <main>
+      <div class="action-buttons">
+        <button id="create-wallet" class="btn btn-primary">Create Wallet</button>
+        <button id="import-wallet" class="btn btn-secondary">Import Wallet</button>
+      </div>
+      <div class="transaction-list">
+        <!-- Transaction items would go here -->
+        <p>No transactions yet</p>
+      </div>
+    </main>
   </div>
   <script src="popup.js"></script>
 </body>

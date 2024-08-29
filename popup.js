@@ -1,10 +1,39 @@
-document.addEventListener('DOMContentLoaded', () => {
-  const walletInfo = document.getElementById('wallet-info');
-  const generateWalletBtn = document.getElementById('generate-wallet');
-  const sendTransactionBtn = document.getElementById('send-transaction');
+console.log('popup.js is running');
 
-  generateWalletBtn.addEventListener('click', () => {
-    walletInfo.textContent = 'Generating wallet...';
+document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOMContentLoaded event fired');
+
+  const walletInfo = document.getElementById('wallet-info');
+  const createWalletBtn = document.getElementById('create-wallet');
+  const importWalletBtn = document.getElementById('import-wallet');
+
+  console.log('walletInfo:', walletInfo);
+  console.log('createWalletBtn:', createWalletBtn);
+  console.log('importWalletBtn:', importWalletBtn);
+
+  // Check if all elements are found
+  if (!walletInfo || !createWalletBtn || !importWalletBtn) {
+    console.error('One or more elements not found in the DOM');
+    return;
+  }
+
+  // Function to load existing wallet
+  function loadExistingWallet() {
+    chrome.storage.local.get(['publicKey'], (result) => {
+      if (result.publicKey) {
+        walletInfo.textContent = `Wallet Address: ${result.publicKey}`;
+        createWalletBtn.style.display = 'none';
+        importWalletBtn.style.display = 'none';
+      }
+    });
+  }
+
+  // Load existing wallet when popup opens
+  loadExistingWallet();
+
+  createWalletBtn.addEventListener('click', () => {
+    console.log('Create wallet button clicked');
+    walletInfo.textContent = 'Creating wallet...';
     chrome.runtime.sendMessage({action: 'generateWallet'}, (response) => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError);
@@ -12,14 +41,20 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       if (response && response.success) {
-        walletInfo.textContent = `Address: ${response.address}`;
+        walletInfo.textContent = `Wallet Address: ${response.address}`;
+        createWalletBtn.style.display = 'none';
+        importWalletBtn.style.display = 'none';
       } else {
-        walletInfo.textContent = 'Error generating wallet';
+        walletInfo.textContent = 'Error creating wallet: ' + (response.error || 'Unknown error');
       }
     });
   });
 
-  sendTransactionBtn.addEventListener('click', () => {
-    // Implement send transaction logic
+  importWalletBtn.addEventListener('click', () => {
+    console.log('Import wallet button clicked');
+    // Implement import wallet logic here
+    alert('Import wallet functionality not implemented yet');
   });
 });
+
+console.log('End of popup.js');
