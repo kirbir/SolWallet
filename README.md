@@ -1,5 +1,7 @@
 # Solana Wallet Chrome Extension
 
+![screenshot](https://github.com/user-attachments/assets/aae40dc0-7edb-4138-b5a7-a6408c23aba9)
+
 A lightweight Chrome extension for managing Solana wallets.
 
 ## 🚀 Features
