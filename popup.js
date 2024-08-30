@@ -21,6 +21,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const seedPhraseElement = document.getElementById('seed-phrase');
   const privateKeyElement = document.getElementById('private-key');
   const copyPrivateKeyBtn = document.getElementById('copy-private-key');
+  const networkSelector = document.getElementById('network-selector');
+  const connectionStatus = document.getElementById('connection-status');
 
   console.log('DOM elements:', { walletInfo, createWalletBtn, importWalletBtn, walletActions, menuBtn, modal });
 
@@ -62,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error response:', response);
         balanceInfo.textContent = 'Error fetching balance';
         // Display a more user-friendly error message
-        alert('Unable to fetch balance. Please try again later.');
+
       }
     });
   }
@@ -176,6 +178,51 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('Receive button clicked');
     const address = walletInfo.textContent.split(': ')[1];
     alert(`Your wallet address is: ${address}\nShare this address with others to receive crypto.`);
+  });
+
+  // Function to update connection status
+  function updateConnectionStatus(isConnected) {
+    connectionStatus.textContent = isConnected ? 'Connected' : 'Disconnected';
+    connectionStatus.className = isConnected ? 'connected' : 'disconnected';
+  }
+
+  // Function to switch network
+  function switchNetwork(network) {
+    chrome.runtime.sendMessage({action: 'switchNetwork', network: network}, (response) => {
+      if (response && response.success) {
+        updateConnectionStatus(true);
+        // Refresh wallet info and balance after switching network
+        loadExistingWallet();
+      } else {
+        updateConnectionStatus(false);
+        alert('Failed to switch network. Please try again.');
+      }
+    });
+  }
+
+  // Handle network selection
+  networkSelector.addEventListener('change', (event) => {
+    const selectedNetwork = event.target.value;
+    if (selectedNetwork === 'custom') {
+      const customRPC = prompt('Enter custom RPC URL:');
+      if (customRPC) {
+        switchNetwork(customRPC);
+      } else {
+        networkSelector.value = 'mainnet'; // Reset to mainnet if no custom RPC is provided
+      }
+    } else {
+      switchNetwork(selectedNetwork);
+    }
+  });
+
+  // Initial connection status check
+  chrome.runtime.sendMessage({action: 'getNetworkStatus'}, (response) => {
+    if (response && response.connected) {
+      updateConnectionStatus(true);
+      networkSelector.value = response.network;
+    } else {
+      updateConnectionStatus(false);
+    }
   });
 
   console.log('End of popup.js');

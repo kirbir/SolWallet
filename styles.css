@@ -8,7 +8,7 @@ body {
   }
   
   .wallet-container {
-    background-color: white;
+    background-color: #18dabf;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
     overflow: hidden;
@@ -227,4 +227,39 @@ body {
     color: #d63031;
     font-weight: bold;
     margin-top: 10px;
+  }
+  
+  /* Add this at the top of your existing styles */
+  .network-status {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #001e55;
+    padding: 5px 10px;
+    font-size: 14px;
+  }
+
+  #network-selector {
+    background-color: transparent;
+    border: none;
+    font-size: 14px;
+    color: #667eea;
+    cursor: pointer;
+  }
+
+  #connection-status {
+    font-weight: bold;
+  }
+
+  #connection-status.connected {
+    color: #2ecc71;
+  }
+
+  #connection-status.disconnected {
+    color: #e74c3c;
+  }
+
+  /* Adjust the existing header styles */
+  header {
+    padding-top: 10px; /* Reduce top padding to accommodate the network status bar */
   }

@@ -4,8 +4,14 @@ import bs58 from 'bs58';
 
 let wallet = null;
 let connection = null;
+let currentNetwork = 'mainnet';
+const networks = {
+  mainnet: 'https://api.mainnet-beta.solana.com',
+  testnet: 'https://api.testnet.solana.com',
+  devnet: 'https://api.devnet.solana.com'
+};
 
-const RPC_ENDPOINT = 'https://api.mainnet-beta.solana.com';
+const RPC_ENDPOINT = 'https://api.testnet.solana.com';
 
 async function initConnection() {
   if (!connection) {
@@ -23,6 +29,16 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // Indicates that the response is sent asynchronously
   } else if (request.action === 'encodePrivateKey') {
     encodePrivateKey().then(sendResponse);
+    return true;
+  }
+
+  if (request.action === 'switchNetwork') {
+    switchNetwork(request.network).then(sendResponse);
+    return true;
+  }
+
+  if (request.action === 'getNetworkStatus') {
+    sendResponse({ connected: !!connection, network: currentNetwork });
     return true;
   }
 });
@@ -78,6 +94,26 @@ async function encodePrivateKey() {
     }
   } catch (error) {
     console.error('Error encoding private key:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+// Function to switch network
+async function switchNetwork(network) {
+  try {
+    if (networks[network]) {
+      currentNetwork = network;
+      connection = new Connection(networks[network]);
+    } else {
+      // Assume it's a custom RPC URL
+      connection = new Connection(network);
+      currentNetwork = 'custom';
+    }
+    // Test connection
+    await connection.getVersion();
+    return { success: true };
+  } catch (error) {
+    console.error('Error switching network:', error);
     return { success: false, error: error.message };
   }
 }
