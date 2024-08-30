@@ -12,7 +12,8 @@ module.exports = {
     fallback: {
       "crypto": require.resolve("crypto-browserify"),
       "stream": require.resolve("stream-browserify"),
-      "buffer": require.resolve("buffer/")
+      "buffer": require.resolve("buffer/"),
+      "bs58": require.resolve("bs58") // Add this line
     }
   },
   plugins: [
@@ -21,6 +22,9 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       process: 'process/browser',
+    }),
+    new webpack.ProvidePlugin({
+      bs58: 'bs58' // Add this line
     }),
   ],
   module: {

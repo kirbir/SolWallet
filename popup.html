@@ -3,23 +3,54 @@
 <head>
   <title>Solana Wallet</title>
   <link rel="stylesheet" type="text/css" href="styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
   <div class="wallet-container">
     <header>
       <h1>Solana Wallet</h1>
-      <p id="wallet-info">No wallet loaded</p>
+      <p id="balance-info">Balance: Loading...</p>
     </header>
     <main>
+      <div class="top-actions">
+        <button id="menu-btn" class="btn btn-icon">☰</button>
+        <button id="import-key" class="btn btn-icon">+</button>
+      </div>
+      <p id="wallet-info" class="wallet-address">No wallet loaded</p>
       <div class="action-buttons">
         <button id="create-wallet" class="btn btn-primary">Create Wallet</button>
         <button id="import-wallet" class="btn btn-secondary">Import Wallet</button>
       </div>
+      <div id="wallet-actions" class="action-buttons" style="display: none;">
+        <button id="send-btn" class="btn btn-primary">Send</button>
+        <button id="receive-btn" class="btn btn-secondary">Receive</button>
+      </div>
       <div class="transaction-list">
-        <!-- Transaction items would go here -->
+        <h2>Recent Transactions</h2>
         <p>No transactions yet</p>
       </div>
     </main>
+  </div>
+  <div id="menu-modal" class="modal">
+    <div class="modal-content">
+      <h2>Menu</h2>
+      <button id="show-seed-phrase" class="btn btn-secondary">Show Seed Phrase</button>
+      <button id="export-private-key" class="btn btn-secondary">Export Private Key</button>
+      <div id="seed-phrase-container" style="display: none;">
+        <p>Your Seed Phrase:</p>
+        <p id="seed-phrase" class="seed-phrase"></p>
+        <p class="warning">Write this down and keep it safe. Never share it with anyone!</p>
+      </div>
+      <div id="private-key-container" style="display: none;">
+        <p>Your Private Key:</p>
+        <div class="private-key-wrapper">
+          <p id="private-key" class="private-key"></p>
+          <button id="copy-private-key" class="btn-icon"><i class="fas fa-copy"></i></button>
+        </div>
+        <p class="warning">Keep this private key safe and secure. Never share it with anyone!</p>
+      </div>
+    </div>
   </div>
   <script src="popup.js"></script>
 </body>
