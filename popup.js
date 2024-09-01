@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
   const networkSelector = document.getElementById('network-selector');
   const connectionStatus = document.getElementById('connection-status');
   const createNewAccountBtn = document.getElementById('create-new-account');
+  const sendModal = document.getElementById('send-modal');
+  const cancelSendBtn = document.getElementById('cancel-send');
+  const confirmSendBtn = document.getElementById('confirm-send');
+  const recipientAddressInput = document.getElementById('recipient-address');
+  const sendAmountInput = document.getElementById('send-amount');
 
   console.log('DOM elements:', { walletInfo, createWalletBtn, importWalletBtn, walletActions, menuBtn, modal });
 
@@ -63,7 +68,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Function to update balance
   function updateBalance(publicKey) {
     console.log('Updating balance for:', publicKey);
-    chrome.runtime.sendMessage({action: 'getBalance', publicKey: publicKey}, (response) => {
+    chrome.runtime.sendMessage({ action: 'getBalance', publicKey: publicKey }, (response) => {
       console.log('Balance update response:', response);
       if (chrome.runtime.lastError) {
         console.error('Runtime error:', chrome.runtime.lastError);
@@ -84,7 +89,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // Add this function to fetch recent transactions
   async function fetchRecentTransactions(publicKey) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({action: 'getRecentTransactions', publicKey: publicKey}, (response) => {
+      chrome.runtime.sendMessage({ action: 'getRecentTransactions', publicKey: publicKey }, (response) => {
         if (chrome.runtime.lastError) {
           console.error('Runtime error:', chrome.runtime.lastError);
           reject(new Error(chrome.runtime.lastError.message));
@@ -125,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   createWalletBtn.addEventListener('click', () => {
     console.log('Create wallet button clicked');
     walletInfo.textContent = 'Creating wallet...';
-    chrome.runtime.sendMessage({action: 'generateWallet'}, (response) => {
+    chrome.runtime.sendMessage({ action: 'generateWallet' }, (response) => {
       console.log('Wallet creation response:', response);
       if (chrome.runtime.lastError) {
         console.error('Runtime error:', chrome.runtime.lastError);
@@ -153,7 +158,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (sendBtn) {
     sendBtn.addEventListener('click', () => {
       console.log('Send button clicked');
-      alert('Send functionality not implemented yet');
+      sendModal.style.display = 'block';
     });
   }
 
@@ -309,5 +314,68 @@ document.addEventListener('DOMContentLoaded', () => {
     createNewWallet();
   });
 
+  cancelSendBtn.addEventListener('click', () => {
+    sendModal.style.display = 'none';
+    // Clear input fields
+    recipientAddressInput.value = '';
+    sendAmountInput.value = '';
+  });
+
+  confirmSendBtn.addEventListener('click', () => {
+    const recipientAddress = recipientAddressInput.value;
+    const amount = parseFloat(sendAmountInput.value);
+
+    if (!recipientAddress || isNaN(amount) || amount <= 0) {
+      alert('Please enter a valid recipient address and amount.');
+      return;
+    }
+
+    // Disable the send button and show a loading indicator
+    confirmSendBtn.disabled = true;
+    confirmSendBtn.textContent = 'Sending...';
+
+    // Send transaction
+    sendTransaction(recipientAddress, amount)
+      .then((result) => {
+        if (result.success) {
+          alert(`Transaction sent successfully! Signature: ${result.signature}`);
+          sendModal.style.display = 'none';
+          // Clear input fields
+          recipientAddressInput.value = '';
+          sendAmountInput.value = '';
+          // Refresh balance and transaction list
+          loadExistingWallet();
+        } else {
+          throw new Error(result.error);
+        }
+      })
+      .catch(error => {
+        alert(`Error sending transaction: ${error.message}`);
+      })
+      .finally(() => {
+        // Re-enable the send button and restore its text
+        confirmSendBtn.disabled = false;
+        confirmSendBtn.textContent = 'Send';
+      });
+  });
+
   console.log('End of popup.js');
 });
+
+async function sendTransaction(recipientAddress, amount) {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage({
+      action: 'sendTransaction',
+      recipientAddress: recipientAddress,
+      amount: amount
+    }, (response) => {
+      if (chrome.runtime.lastError) {
+        reject(new Error(chrome.runtime.lastError.message));
+      } else if (response && response.success) {
+        resolve(response);
+      } else {
+        reject(new Error(response.error || 'Failed to send transaction'));
+      }
+    });
+  });
+}

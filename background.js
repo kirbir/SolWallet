@@ -1,4 +1,4 @@
-import { Connection, Keypair, PublicKey, clusterApiUrl } from '@solana/web3.js';
+import { Connection, Keypair, PublicKey, Transaction, SystemProgram, LAMPORTS_PER_SOL, sendAndConfirmTransaction } from '@solana/web3.js';
 import * as bip39 from 'bip39';
 import bs58 from 'bs58';
 
@@ -45,6 +45,13 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === 'getRecentTransactions') {
     getRecentTransactions(request.publicKey).then(sendResponse);
     return true;
+  }
+
+  if (request.action === 'sendTransaction') {
+    sendTransaction(request.recipientAddress, request.amount)
+      .then(sendResponse)
+      .catch((error) => sendResponse({ success: false, error: error.message }));
+    return true; // Indicates that the response is sent asynchronously
   }
 });
 
@@ -171,5 +178,59 @@ async function getRecentTransactions(publicKey) {
   } catch (error) {
     console.error('Error fetching recent transactions:', error);
     return { success: false, error: error.message || 'Unknown error occurred' };
+  }
+}
+
+async function sendTransaction(recipientAddress, amount) {
+  try {
+    await initConnection();
+    const senderKeypair = await getSenderKeypair();
+    const recipientPubkey = new PublicKey(recipientAddress);
+    const lamports = Math.round(amount * LAMPORTS_PER_SOL);
+
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: senderKeypair.publicKey,
+        toPubkey: recipientPubkey,
+        lamports: lamports,
+      })
+    );
+
+    // Get the latest blockhash
+    let { blockhash } = await connection.getLatestBlockhash();
+    transaction.recentBlockhash = blockhash;
+    transaction.feePayer = senderKeypair.publicKey;
+
+    // Sign the transaction
+    transaction.sign(senderKeypair);
+
+    // Send the transaction and wait for confirmation
+    const signature = await connection.sendRawTransaction(transaction.serialize());
+    
+    // Wait for confirmation with a timeout
+    const confirmation = await Promise.race([
+      connection.confirmTransaction(signature),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('Transaction confirmation timeout')), 30000))
+    ]);
+
+    if (confirmation.value.err) {
+      throw new Error('Transaction failed: ' + confirmation.value.err.toString());
+    }
+
+    console.log('Transaction sent and confirmed:', signature);
+    return { success: true, signature: signature };
+  } catch (error) {
+    console.error('Error sending transaction:', error);
+    return { success: false, error: error.message };
+  }
+}
+
+async function getSenderKeypair() {
+  const result = await chrome.storage.local.get(['privateKey']);
+  if (result.privateKey) {
+    const privateKeyUint8Array = new Uint8Array(result.privateKey);
+    return Keypair.fromSecretKey(privateKeyUint8Array);
+  } else {
+    throw new Error('No private key found');
   }
 }

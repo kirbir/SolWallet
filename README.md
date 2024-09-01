@@ -7,10 +7,17 @@ A lightweight Chrome extension for managing Solana wallets.
 ## 🚀 Features
 
 - ✨ Create new Solana wallets
-- 💰 View wallet balance
-- 🔑 Export private keys
-- 🌱 Display seed phrases
+- 💰 View wallet balance in real-time
+- 🔑 Export private keys securely
+- 🌱 Display and securely store seed phrases
 - 📥 Receive SOL tokens
+- 💸 Send SOL tokens to other addresses
+- 🔄 View recent transactions
+- 🌐 Switch between different Solana networks (Mainnet, Testnet, Devnet)
+- 👛 Create multiple accounts within the same wallet
+- 🔒 Secure storage of wallet information
+- 📊 Real-time balance updates
+- 🔍 Transaction details and confirmation status
 
 ## 🛠 Installation
 
@@ -37,10 +44,13 @@ A lightweight Chrome extension for managing Solana wallets.
 ## 📖 Usage
 
 1. Click the extension icon in Chrome to open the wallet interface
-2. Create a new wallet or load an existing one
+2. Create a new wallet or import an existing one
 3. View your balance and wallet address
-4. Use the "Receive" button to display your address for incoming transactions
-5. Access additional options like exporting private keys from the menu
+4. Use the "Send" button to transfer SOL to another address
+5. Use the "Receive" button to display your address for incoming transactions
+6. View recent transactions in the transaction list
+7. Switch between different Solana networks using the network selector
+8. Access additional options like exporting private keys from the menu
 
 ## ⚠️ Security
 
@@ -50,10 +60,11 @@ A lightweight Chrome extension for managing Solana wallets.
 
 ## 🔜 Upcoming Features
 
-- [ ] Send SOL tokens
-- [ ] Import existing wallets
-- [ ] Transaction history
-- [ ] Multi-token support
+- [ ] Support for SPL tokens
+- [ ] Enhanced transaction history with filtering options
+- [ ] QR code generation for easy receiving
+- [ ] Address book functionality
+- [ ] Custom RPC endpoint support
 
 ## 🤝 Contributing
 
