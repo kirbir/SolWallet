@@ -23,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const copyPrivateKeyBtn = document.getElementById('copy-private-key');
   const networkSelector = document.getElementById('network-selector');
   const connectionStatus = document.getElementById('connection-status');
+  const createNewAccountBtn = document.getElementById('create-new-account');
 
   console.log('DOM elements:', { walletInfo, createWalletBtn, importWalletBtn, walletActions, menuBtn, modal });
 
@@ -208,21 +209,55 @@ document.addEventListener('DOMContentLoaded', () => {
       if (customRPC) {
         switchNetwork(customRPC);
       } else {
-        networkSelector.value = 'mainnet'; // Reset to mainnet if no custom RPC is provided
+        networkSelector.value = 'devnet'; // Reset to devnet if no custom RPC is provided
       }
     } else {
       switchNetwork(selectedNetwork);
     }
   });
 
-  // Initial connection status check
+  // Initial connection status check and set default network to devnet
   chrome.runtime.sendMessage({action: 'getNetworkStatus'}, (response) => {
     if (response && response.connected) {
       updateConnectionStatus(true);
       networkSelector.value = response.network;
     } else {
       updateConnectionStatus(false);
+      networkSelector.value = 'devnet';
     }
+    // Always switch to devnet when opening the extension
+    switchNetwork('https://api.devnet.solana.com');
+  });
+
+  // Function to create a new wallet
+  function createNewWallet() {
+    console.log('Creating new wallet...');
+    walletInfo.textContent = 'Creating wallet...';
+    chrome.runtime.sendMessage({action: 'generateWallet'}, (response) => {
+      console.log('Wallet creation response:', response);
+      if (chrome.runtime.lastError) {
+        console.error('Runtime error:', chrome.runtime.lastError);
+        walletInfo.textContent = 'Error: ' + chrome.runtime.lastError.message;
+        return;
+      }
+      if (response && response.success) {
+        walletInfo.textContent = `Wallet Address: ${response.address}`;
+        createWalletBtn.style.display = 'none';
+        importWalletBtn.style.display = 'none';
+        walletActions.style.display = 'flex';
+        updateBalance(response.address);
+        modal.style.display = 'none'; // Close the modal after creating a new account
+      } else {
+        console.error('Error response:', response);
+        walletInfo.textContent = 'Error creating wallet: ' + (response && response.error ? response.error : 'Unknown error');
+      }
+    });
+  }
+
+  // Add event listener for the new "Create New Account" button
+  createNewAccountBtn.addEventListener('click', () => {
+    console.log('Create New Account button clicked');
+    createNewWallet();
   });
 
   console.log('End of popup.js');

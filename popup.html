@@ -12,6 +12,7 @@
       <select id="network-selector">
         <option value="mainnet">Mainnet</option>
         <option value="testnet">Testnet</option>
+        <option value="devnet" selected>Devnet</option>
         <option value="custom">Custom</option>
       </select>
       <span id="connection-status">Connected</span>
@@ -24,7 +25,7 @@
       <div class="top-actions">
         <button id="menu-btn" class="btn btn-icon">
           <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-list" viewBox="0 0 16 16">
-            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5m0-4a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
+            <path fill-rule="evenodd" d="M2.5 12a.5.5 0 0 1 .5-.5h10a.5.5 0 0 1 0 1H3a.5.5 0 0 1-.5-.5"/>
           </svg>
         </button>
         <button id="import-key" class="btn btn-icon" label="Import Key">
@@ -52,6 +53,7 @@
   <div id="menu-modal" class="modal">
     <div class="modal-content">
       <h2>Menu</h2>
+      <button id="create-new-account" class="btn btn-secondary">Create New Account</button>
       <button id="show-seed-phrase" class="btn btn-secondary">Show Seed Phrase</button>
       <button id="export-private-key" class="btn btn-secondary">Export Private Key</button>
       <div id="seed-phrase-container" style="display: none;">

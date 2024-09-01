@@ -4,14 +4,14 @@ import bs58 from 'bs58';
 
 let wallet = null;
 let connection = null;
-let currentNetwork = 'mainnet';
+let currentNetwork = 'devnet'; // Set default network to devnet
 const networks = {
   mainnet: 'https://api.mainnet-beta.solana.com',
   testnet: 'https://api.testnet.solana.com',
   devnet: 'https://api.devnet.solana.com'
 };
 
-const RPC_ENDPOINT = 'https://api.testnet.solana.com';
+const RPC_ENDPOINT = networks.devnet; // Set default RPC endpoint to devnet
 
 async function initConnection() {
   if (!connection) {
@@ -49,6 +49,13 @@ async function generateWallet() {
     const mnemonic = bip39.generateMnemonic();
     const seed = await bip39.mnemonicToSeed(mnemonic);
     wallet = Keypair.fromSeed(seed.slice(0, 32));
+
+    // Request an airdrop to activate the account
+    const airdropSignature = await connection.requestAirdrop(
+      wallet.publicKey,
+      1000000000 // 1 SOL in lamports
+    );
+    await connection.confirmTransaction(airdropSignature);
 
     await chrome.storage.local.set({
       mnemonic: mnemonic,
