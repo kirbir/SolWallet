@@ -19,6 +19,17 @@ A lightweight Chrome extension for managing Solana wallets.
 - 📊 Real-time balance updates
 - 🔍 Transaction details and confirmation status
 
+## 🛠️ Technologies Used
+
+- **Language:** JavaScript
+- **Main Library:** [Solana Web3.js](https://github.com/solana-labs/solana-web3.js)
+- **Blockchain:** Solana
+- **Extension Framework:** Chrome Extension API
+- **Build Tool:** Webpack
+- **Additional Libraries:**
+  - [bip39](https://github.com/bitcoinjs/bip39) for mnemonic phrase generation
+  - [bs58](https://github.com/cryptocoinjs/bs58) for Base58 encoding/decoding
+
 ## 🛠 Installation
 
 1. Clone this repository:
