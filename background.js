@@ -41,6 +41,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     sendResponse({ connected: !!connection, network: currentNetwork });
     return true;
   }
+
+  if (request.action === 'getRecentTransactions') {
+    getRecentTransactions(request.publicKey).then(sendResponse);
+    return true;
+  }
 });
 
 async function generateWallet() {
@@ -122,5 +127,49 @@ async function switchNetwork(network) {
   } catch (error) {
     console.error('Error switching network:', error);
     return { success: false, error: error.message };
+  }
+}
+
+async function getRecentTransactions(publicKey) {
+  try {
+    await initConnection();
+    const pubKey = new PublicKey(publicKey);
+    console.log('Fetching recent transactions for:', publicKey);
+    const signatures = await connection.getSignaturesForAddress(pubKey, { limit: 5 });
+    
+    if (signatures.length === 0) {
+      return {
+        success: true,
+        transactions: []
+      };
+    }
+
+    const formattedTransactions = await Promise.all(signatures.map(async (sig) => {
+      try {
+        const transaction = await connection.getTransaction(sig.signature);
+        if (!transaction) {
+          console.log('Transaction not found:', sig.signature);
+          return null;
+        }
+        return {
+          type: transaction.meta && transaction.meta.err ? 'Failed' : 'Success',
+          amount: transaction.meta ? (transaction.meta.postBalances[0] - transaction.meta.preBalances[0]) / 1e9 : 0,
+          timestamp: sig.blockTime ? sig.blockTime * 1000 : Date.now()
+        };
+      } catch (txError) {
+        console.error('Error fetching transaction details:', txError);
+        return null;
+      }
+    }));
+
+    const validTransactions = formattedTransactions.filter(tx => tx !== null);
+
+    return {
+      success: true,
+      transactions: validTransactions
+    };
+  } catch (error) {
+    console.error('Error fetching recent transactions:', error);
+    return { success: false, error: error.message || 'Unknown error occurred' };
   }
 }

@@ -43,6 +43,17 @@ document.addEventListener('DOMContentLoaded', () => {
         importWalletBtn.style.display = 'none';
         walletActions.style.display = 'flex';
         updateBalance(result.publicKey);
+        
+        // Fetch and update recent transactions
+        fetchRecentTransactions(result.publicKey)
+          .then(transactions => {
+            console.log('Fetched transactions:', transactions);
+            updateTransactionsList(transactions);
+          })
+          .catch(error => {
+            console.error('Error fetching transactions:', error);
+            updateTransactionsList([]); // Show empty list on error
+          });
       } else {
         console.log('No existing wallet found');
       }
@@ -68,6 +79,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
       }
     });
+  }
+
+  // Add this function to fetch recent transactions
+  async function fetchRecentTransactions(publicKey) {
+    return new Promise((resolve, reject) => {
+      chrome.runtime.sendMessage({action: 'getRecentTransactions', publicKey: publicKey}, (response) => {
+        if (chrome.runtime.lastError) {
+          console.error('Runtime error:', chrome.runtime.lastError);
+          reject(new Error(chrome.runtime.lastError.message));
+        } else if (response && response.success) {
+          resolve(response.transactions);
+        } else {
+          console.error('Error response:', response);
+          reject(new Error(response.error || 'Failed to fetch transactions'));
+        }
+      });
+    });
+  }
+
+  // Add this function to update the transactions list in the UI
+  function updateTransactionsList(transactions) {
+    const transactionsList = document.getElementById('transactions-list');
+    transactionsList.innerHTML = ''; // Clear existing list
+
+    if (!transactions || transactions.length === 0) {
+      transactionsList.innerHTML = '<li class="no-transactions">No transactions yet</li>';
+    } else {
+      transactions.forEach(tx => {
+        const li = document.createElement('li');
+        li.className = 'transaction-item';
+        li.innerHTML = `
+          <span class="transaction-type">${tx.type}</span>
+          <span class="transaction-amount">${tx.amount.toFixed(9)} SOL</span>
+          <span class="transaction-date">${new Date(tx.timestamp).toLocaleString()}</span>
+        `;
+        transactionsList.appendChild(li);
+      });
+    }
   }
 
   // Load existing wallet when popup opens
